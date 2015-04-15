@@ -5,6 +5,7 @@ var fs = require('fs');
 var brain = require('brain');
 
 //TODO: your code here to create a new neural net instance
+var net = new brain.NeuralNetwork();
 
 module.exports = {
   // this is our main entry point
@@ -38,13 +39,17 @@ module.exports = {
 
     //TODO: Your code here to train the neural net
 
+    net.train(trainingData, {iterations: 30, log: true});
 
     console.timeEnd('trainBrain');
 
     // once we've trained the brain, write it to json to back it up
     var jsonBackup = net.toJSON();
+
     console.log(jsonBackup);
+
     var runBackup = net.toFunction();
+
     module.exports.writeBrain(jsonBackup);
 
     // now test the results and see how our machine did!
@@ -56,6 +61,7 @@ module.exports = {
   testBrain: function(testData) {
     //console.time gives us the time it takes to complete a task
     console.time('testBrain');
+    console.log('testBrain start');
     //TODO: Your code here to get the predicted values for everything in our testData
     //The logging code provided for you below expects the predicted net values to be stored as properties on each item in testData under the property name nnPredictions. 
     //Here's what an object in the testData array should look like after you've gotten the predicted result from the net:
@@ -73,7 +79,13 @@ module.exports = {
         output: { defaulted: 0 },
         nnPredictions: { defaulted: 0.34634397489904356 } }
       */
+    for(var p = 0; p < testData.length; p++){
 
+      var output = net.run(testData[p].input);
+      testData[p].nnPredictions = output;
+    }
+
+    
     
 
     // everything below is formatting the output
@@ -93,7 +105,8 @@ module.exports = {
       //we format the net's prediction to be an int between 0 and 100
       var prediction = Math.round( testData[i].nnPredictions.defaulted * 100);
       //We then increment the total number of cases that the net predicts exist at this level of risk 
-      // (i.e., if the net's prediction for a given input is .38745, we would add one more to the 39 category, since we now have one more observation that the net has predicted has a 39% chance of defaulting)
+      // (i.e., if the net's prediction for a given input is .38745, we would add one more to the 39 category,
+      //  since we now have one more observation that the net has predicted has a 39% chance of defaulting)
       results[prediction].nnCount++;
       //And whether this input resulted in a default or not
       results[prediction].defaulted += testData[i].output.defaulted;
